@@ -1,0 +1,15 @@
+model_list:
+ - model_name: fake-openai-endpoint
+   litellm_params:
+     model: openai/fake
+     api_key: fake-key
+   model_info:
+     id: "team-a-model" # used for identifying model in response headers
+
+litellm_settings:
+  success_callback: ["prometheus"]
+  failure_callback: ["prometheus"]
+
+general_settings: 
+ master_key: sk-1234 
+ custom_auth: example_config_yaml.custom_auth_basic.user_api_key_auth
