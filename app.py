@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from langflow.load import run_flow_from_json
 
 app = Flask(__name__)
@@ -32,11 +32,11 @@ TWEAKS = {
         "template": "{text}"
     },
     "File-ADzPj": {
-        "path": r"C:\Users\prith\OneDrive\Desktop\chat_bot\J.M. Smith, Hendrick Van Ness, Michael Abbott, Mark Swihart - Introduction to Chemical Engineering Thermodynamics-McGraw-Hill Education (2018).txt",
+        "path": r"C:\Users\prith\OneDrive\Desktop\chat_bot\J.M. Smith, Hendrick Van Ness, Michael Abbott, Mark Swihart - Introduction to Chemical Engineering Thermodynamics-McGraw-Hill Education (2018)1.txt",
         "silent_errors": False
     },
     "GoogleGenerativeAIModel-7CteZ": {
-        "google_api_key": os.getenv("GOOGLE_API_KEY"),  # Use environment variable for API key
+        "google_api_key":"AIzaSyB5hNTMw1Obh5tXn0zZAEawv0tmzWwtm24",  # Use environment variable for API key
         "input_value": "",
         "max_output_tokens": None,
         "model": "gemini-1.5-flash",
@@ -78,6 +78,10 @@ def extract_text(response):
         print(f"Error parsing response: {e}")
     
     return "No valid response found."
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/ask', methods=['POST'])
 def ask_question():

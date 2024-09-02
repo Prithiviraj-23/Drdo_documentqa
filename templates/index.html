@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Chat Bot</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<style>
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background-color: #f4f4f9;
+			color: #333;
+			margin: 0;
+			padding: 0;
+			display: flex;
+			flex-direction: column;
+			height: 100vh;
+			justify-content: center;
+			align-items: center;
+		}
+
+		h1 {
+			text-align: center;
+			color: #333;
+			margin-bottom: 20px;
+		}
+
+		#chatContainer {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			max-width: 600px;
+			background: #fff;
+			border-radius: 10px;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+			padding: 20px;
+			overflow-y: auto;
+			max-height: 80vh;
+		}
+
+		.message {
+			display: flex;
+			margin-bottom: 15px;
+			align-items: flex-start;
+		}
+
+		.message.user {
+			justify-content: flex-end;
+		}
+
+		.message.user .messageContent {
+			background-color: #007bff;
+			color: white;
+		}
+
+		.message.bot .messageContent {
+			background-color: #e9ecef;
+			color: #333;
+		}
+
+		.messageContent {
+			max-width: 70%;
+			padding: 10px 15px;
+			border-radius: 15px;
+			line-height: 1.5;
+			font-size: 16px;
+		}
+
+		form {
+			display: flex;
+			width: 100%;
+			max-width: 600px;
+			margin-top: 10px;
+		}
+
+		textarea {
+			width: 100%;
+			padding: 10px;
+			border: 1px solid #ced4da;
+			border-radius: 5px;
+			resize: none;
+			font-size: 16px;
+			outline: none;
+			background-color: #f8f9fa;
+			color: #333;
+		}
+
+		button {
+			background-color: #007bff;
+			color: white;
+			border: none;
+			border-radius: 5px;
+			padding: 10px 15px;
+			cursor: pointer;
+			font-size: 16px;
+			margin-left: 10px;
+			transition: background-color 0.3s;
+		}
+
+		button:hover {
+			background-color: #0056b3;
+		}
+
+		.loading {
+			display: none;
+			/* Hide loading message initially */
+			text-align: center;
+			font-size: 16px;
+			color: #333;
+			margin-top: 20px;
+		}
+
+		#responseText {
+			display: none;
+			/* Hide response initially */
+		}
+	</style>
+</head>
+
+<body>
+	<h1>Chat Bot</h1>
+	<div id="chatContainer"></div>
+
+	<form id="questionForm">
+		<textarea id="question" name="question" rows="1" placeholder="Type your message..." required></textarea>
+		<button type="submit">Send</button>
+	</form>
+	<div class="loading" id="loading">Typing...</div> <!-- Loading message -->
+
+	<script>
+		$(document).ready(function () {
+			$('#questionForm').on('submit', function (e) {
+				e.preventDefault(); // Prevent the form from submitting the traditional way
+				const question = $('#question').val();
+				$('#loading').show(); // Show loading message
+				addMessage(question, 'user'); // Display user message
+				$('#question').val(''); // Clear input field
+
+				$.ajax({
+					url: '/ask',
+					type: 'POST',
+					contentType: 'application/json',
+					data: JSON.stringify({ question: question }),
+					success: function (data) {
+						$('#loading').hide(); // Hide loading message
+						addMessage(data.text, 'bot'); // Display bot response
+					},
+					error: function (err) {
+						$('#loading').hide(); // Hide loading message
+						addMessage(err.responseJSON.error, 'bot error'); // Display error
+					}
+				});
+			});
+
+			function addMessage(text, sender) {
+				const messageClass = sender === 'user' ? 'message user' : 'message bot';
+				$('#chatContainer').append(`
+                    <div class="${messageClass}">
+                        <div class="messageContent">${text}</div>
+                    </div>
+                `);
+				$('#chatContainer').scrollTop($('#chatContainer')[0].scrollHeight); // Scroll to the bottom
+			}
+		});
+	</script>
+</body>
+
+</html>
