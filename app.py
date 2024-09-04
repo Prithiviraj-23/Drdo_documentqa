@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, render_template
 from langflow.load import run_flow_from_json
 
 app = Flask(__name__)
+file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "J.M. Smith, Hendrick Van Ness, Michael Abbott, Mark Swihart - Introduction to Chemical Engineering Thermodynamics-McGraw-Hill Education (2018)1.txt")
 
 # Define the TWEAKS dictionary
 TWEAKS = {
@@ -32,11 +33,11 @@ TWEAKS = {
         "template": "{text}"
     },
     "File-ADzPj": {
-        "path": r"C:\Users\prith\OneDrive\Desktop\chat_bot\J.M. Smith, Hendrick Van Ness, Michael Abbott, Mark Swihart - Introduction to Chemical Engineering Thermodynamics-McGraw-Hill Education (2018)1.txt",
+        "path":file_path ,
         "silent_errors": False
     },
     "GoogleGenerativeAIModel-7CteZ": {
-        "google_api_key":"AIzaSyB5hNTMw1Obh5tXn0zZAEawv0tmzWwtm24",  # Use environment variable for API key
+        "google_api_key":"AIzaSyB5hNTMw1Obh5tXn0zZAEawv0tmzWwtm24" ,  # Use environment variable for API key
         "input_value": "",
         "max_output_tokens": None,
         "model": "gemini-1.5-flash",
@@ -53,11 +54,16 @@ def run_langflow(message):
     TWEAKS["Prompt-2y08E"]["Question"] = message
     TWEAKS["ChatInput-FGACD"]["input_value"] = message
     
-    result = run_flow_from_json(flow="Document QA (1).json",
-                                input_value=message,
-                                fallback_to_env_vars=True,
-                                tweaks=TWEAKS)
-    return result
+    try:
+        result = run_flow_from_json(flow="Document QA (1).json",
+                                    input_value=message,
+                                    fallback_to_env_vars=True,
+                                    tweaks=TWEAKS)
+        print(f"Result from run_flow_from_json: {result}")
+        return result
+    except Exception as e:
+        print(f"Error in run_langflow: {e}")
+        return None
 
 def extract_text(response):
     try:
@@ -88,12 +94,17 @@ def ask_question():
     data = request.json
     question = data.get('question')
 
+    
+
     if not question:
         return jsonify({'error': 'No question provided'}), 400
 
-    result = main(question)
-    
-    return jsonify({'text': result})
+    try:
+        result = main(question)
+        return jsonify({'text': result})
+    except Exception as e:
+        print(f"Error in ask_question: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 def main(prompt):
     if prompt:
@@ -105,4 +116,4 @@ def main(prompt):
 
 if __name__ == "__main__":
     # Use host='0.0.0.0' and port from environment variable
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
