@@ -13,40 +13,19 @@ TWEAKS = {
         "template": "Answer user's questions based on the document below:\n\n\nother than give \"I don't Know\"\n\n---\n\n{Document}\n\n---\n\nQuestion:\n{Question}\n\nAnswer:\n"
     },
     "ChatInput-FGACD": {
-        "files": "",
-        "input_value": "",
+        "input_value": "",  # Initialize with a default value
         "sender": "User",
         "sender_name": "User",
         "session_id": "",
         "should_store_message": True
     },
-    "ChatOutput-q0cBN": {
-        "data_template": "{text}",
-        "input_value": "",
-        "sender": "Machine",
-        "sender_name": "AI",
-        "session_id": "",
-        "should_store_message": True
-    },
-    "ParseData-5v6pl": {
-        "sep": "\n",
-        "template": "{text}"
-    },
     "File-ADzPj": {
-        "path":file_path ,
+        "path": file_path,
         "silent_errors": False
     },
     "GoogleGenerativeAIModel-7CteZ": {
-        "google_api_key":"AIzaSyB5hNTMw1Obh5tXn0zZAEawv0tmzWwtm24" ,  # Use environment variable for API key
-        "input_value": "",
-        "max_output_tokens": None,
-        "model": "gemini-1.5-flash",
-        "n": None,
-        "stream": False,
-        "system_message": "",
-        "temperature": 0.1,
-        "top_k": None,
-        "top_p": None
+        "google_api_key":"AIzaSyB5hNTMw1Obh5tXn0zZAEawv0tmzWwtm24",  # Use environment variable for API key
+        "temperature": 0.1
     }
 }
 
@@ -56,10 +35,9 @@ def run_langflow(message):
     
     try:
         result = run_flow_from_json(flow="Document QA (1).json",
-                                    input_value=message,
-                                    fallback_to_env_vars=True,
-                                    tweaks=TWEAKS)
-        print(f"Result from run_flow_from_json: {result}")
+                                     input_value=message,
+                                     fallback_to_env_vars=True,
+                                     tweaks=TWEAKS)
         return result
     except Exception as e:
         print(f"Error in run_langflow: {e}")
@@ -78,8 +56,6 @@ def extract_text(response):
                             message_data = result_data.get("message", {})
                             if "text" in message_data.data:
                                 return message_data.data["text"].strip()
-        else:
-            print("Response is empty or not in expected format.")
     except Exception as e:
         print(f"Error parsing response: {e}")
     
@@ -93,8 +69,6 @@ def index():
 def ask_question():
     data = request.json
     question = data.get('question')
-
-    
 
     if not question:
         return jsonify({'error': 'No question provided'}), 400
@@ -115,5 +89,4 @@ def main(prompt):
         return "Please enter a question before submitting."
 
 if __name__ == "__main__":
-    # Use host='0.0.0.0' and port from environment variable
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
